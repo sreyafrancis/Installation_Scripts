@@ -1,0 +1,33 @@
+#! /bin/bash
+
+# Caffe installation Script
+
+# Installing Required Ubuntu Packages
+sudo apt-get install -y libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler
+sudo apt-get install -y --no-install-recommends libboost-all-dev
+sudo apt-get install -y libatlas-base-dev
+sudo apt-get install -y libgflags-dev libgoogle-glog-dev liblmdb-dev
+
+# Downloading Caffe Source Code from github 
+cd ~
+git clone https://github.com/BVLC/caffe.git
+git checkout caffe-master
+
+#  Installing required python packages 
+cd ~/caffe/python
+for req in $(cat requirements.txt); do sudo pip install $req; done
+
+# Modifying Make file 
+cd ~/caffe
+cp Makefile.config.example Makefile.config
+#sed -i '/CPU_ONLY := 1/s/^#//g' Makefile.config
+sed -i '/USE_CUDNN := 1/s/^#//g' Makefile.config
+sed -i '/OPENCV_VERSION := 3/s/^#//g' Makefile.config
+
+#  Building Caffe
+mkdir ~/caffe/build 
+cd ~/caffe/build
+cmake ..
+make all
+make install 
+make runtest
